@@ -38,30 +38,46 @@
                     <el-option label="Tarde" value="Tarde" />
                 </el-select>
             </el-form-item>
-            <el-form-item label="Médico" prop="doctors">
+            <el-form-item label="Médico" prop="doctors" v-if="userRole === 'receptionist'">
                 <el-select v-model="form.doctor_id" placeholder="Selecione o médico">
-                    <el-option v-for="doctor in doctors" :label="doctor.name" :value="doctor.id" />
+                    <el-option v-for="doctor in doctorsData" :label="doctor.name" :value="doctor.id" />
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Criar</button>
+                <button v-if="isEdit" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Editar</button>
+                <button v-if="!isEdit" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Criar</button>
             </el-form-item>
         </el-form>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { defineComponent, ref, watch, computed } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
+
    export default defineComponent({
         props: {
             doctorsData: {
                 type: Object,
-                required: true
+                required: false
                 },
+            userRole: {
+                type: String,
+                required: false
+            },
+            appointment: Object,
+            isEdit:{
+                type: Boolean,
+                default: false
+            },
+            isClient: {
+                type: Boolean,
+                default: false
+            }
         },
         setup(props) {
             // Initialize form data
+            const { props: pageProps } = usePage()
             const form = ref({
                 client_name: '',
                 client_email: '',
@@ -73,6 +89,21 @@ import { router } from '@inertiajs/vue3';
                 time_of_day: '',
                 doctor_id: null
             });
+
+            const resetForm = () => {
+                form.value = {
+                    client_name: '',
+                    client_email: '',
+                    animal_name: '',
+                    animal_type: '',
+                    age: null,
+                    symptoms: '',
+                    appointment_date: '',
+                    time_of_day: '',
+                    doctor_id: null,
+                };
+                formRef.value.clearValidate();
+            };
 
             const rules = {
                 client_name: [
@@ -86,7 +117,7 @@ import { router } from '@inertiajs/vue3';
                     { required: true, message: 'Nome do animal é obrigatório', trigger: 'blur' }
                 ],
                 animal_type: [
-                    { required: true, message: 'Tipo de animal é obrigatório', trigger: 'change' }
+                    { required: true, message: 'Tipo de animal é obrigatório', trigger: 'blur' }
                 ],
                 age: [
                     { required: true, message: 'Idade é obrigatória', trigger: 'change' },
@@ -96,32 +127,54 @@ import { router } from '@inertiajs/vue3';
                     { required: true, message: 'Sintomas são obrigatórios', trigger: 'blur' }
                 ],
                 appointment_date: [
-                    { required: true, message: 'Data da marcação é obrigatória', trigger: 'change' }
+                    { required: true, message: 'Data da marcação é obrigatória', trigger: 'blur' }
                 ],
                 time_of_day: [
-                    { required: true, message: 'Período do dia é obrigatório', trigger: 'change' }
+                    { required: true, message: 'Período do dia é obrigatório', trigger: 'blur' }
                 ],
                 };
 
             const formRef = ref(null);
+            const isReceptionist = computed(() => pageProps.useRole === 'receptionist');
+            const doctors = ref(pageProps.doctors || []);
 
-            // Form submission handler
+            watch(() => props.appointment, (newValue) => {
+                if (newValue) {
+                    form.value = { ...newValue };
+                }
+            }, { immediate: true });
+            
             const submitForm = () => {
                 formRef.value?.validate((valid) => {
                     if (valid) {
-                        router.post(route('appointments.store'), form.value);
+                        const requestData = { ...form.value };
+                        if(!props.isClient){
+                            if(props.isEdit){
+                                router.post(route('appointments.storeEdit'), requestData)
+                            }else{
+                                router.post(route('appointments.store'), requestData);
+                            }
+                        }else{
+                            router.post(route('client.appointment.store'), requestData);
+                            resetForm();
+                        }
                     } else {
-                        console.log('Erro na validação');
+                        console.log('Validation Error');
                         return false;
                     }
                 });
-                };
+            };
+            const cancelEdit = () => {
+                router.visit(route('appointments.index'));
+            };
             return {
                 form,
                 rules,
                 formRef,
                 submitForm,
-                doctors: props.doctorsData
+                cancelEdit,
+                isReceptionist,
+                doctors
             };
         },
         });

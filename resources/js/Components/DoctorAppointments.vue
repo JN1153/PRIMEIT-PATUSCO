@@ -48,8 +48,10 @@
   <script lang="ts">
   import { defineComponent, ref, computed, onMounted } from 'vue';
   import type { TableInstance } from 'element-plus';
+  import { router } from '@inertiajs/vue3';
   
   interface Appointment {
+    id: number;
     client_name: string;
     animal_name: string;
     animal_type: string;
@@ -120,11 +122,12 @@
             }
         };
         const editAppointment = (appointment: Appointment) => {
-            //TODO: Redirecionar para a página de edição de marcação
-            console.log('Editar marcação:', appointment);
+            router.visit(route('appointments.edit', appointment.id));
         };
         const deleteAppointment = async (appointmentId: number) => {
-            console.log('Excluir marcação:', appointmentId);
+            if(props.userRole === 'receptionist') {
+                router.delete(route('appointments.destroy', appointmentId));
+            }
         };
     
         return {

@@ -23,7 +23,7 @@ class AppointmentsTableSeeder extends Seeder
         for ($i = 0; $i < 20; $i++) {
             Appointment::create([
                 'client_name' => fake()->name,
-                'email' => fake()->unique()->safeEmail,
+                'client_email' => fake()->unique()->safeEmail,
                 'animal_name' => fake()->word,
                 'animal_type' => $animalTypes[array_rand($animalTypes)],
                 'age' => fake()->numberBetween(1, 15),

@@ -40,6 +40,11 @@ class AppointmentPolicy
         return $user->isReceptionist() || $user->id === $appointment->doctor_id;
     }
 
+    public function storeEdit(User $user, Appointment $appointment): bool
+    {
+        return $user->isReceptionist() || $user->id === $appointment->doctor_id;
+    }
+
     /**
      * Determine whether the user can delete the model.
      */

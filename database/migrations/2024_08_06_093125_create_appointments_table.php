@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->string('client_name');
-            $table->string('email');
+            $table->string('client_email');
             $table->string('animal_name');
             $table->enum('animal_type', ['cão', 'gato', 'tartaruga', 'pato', 'galinha']);
             $table->integer('age');
