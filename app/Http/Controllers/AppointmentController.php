@@ -86,9 +86,6 @@ class AppointmentController extends Controller
     public function store(Request $request, Appointment $appointment): RedirectResponse
     {
         Gate::authorize('create', $appointment);
-        if(Gate::denies('create', $appointment)){
-            return redirect()->route('appointments.index');
-        }
         $data = $request->all();
         
         $validator = Validator::make($data, [
@@ -130,10 +127,8 @@ class AppointmentController extends Controller
 
     public function storeEdit(Request $request, Appointment $appointment): RedirectResponse
     {
-        $appointment = Appointment::findOrFail($request->id);        
-        if(Gate::denies('storeEdit', $appointment)){
-            abort(302, route('appointments.index'));
-        }
+        $appointment = Appointment::findOrFail($request->id);
+        Gate::authorize('storeEdit', $appointment);
 
         $validator = Validator::make($request->all(), [
             'client_name' => 'required|string|max:255',
