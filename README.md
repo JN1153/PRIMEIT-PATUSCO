@@ -1,5 +1,8 @@
 # Contas para login
 - recepcionista@example.com -pw: password
+- dr.joao@example.com -pw: password
+- dra.maria@example.com -pw: password
+- dr.pedro@example.com -pw: password
 
 # Intruções de Instalação
 
