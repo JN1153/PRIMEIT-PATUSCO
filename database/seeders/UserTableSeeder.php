@@ -22,7 +22,7 @@ class UserTableSeeder extends Seeder
         ]);
 
         // Criar médicos
-        $doctorNames = ['Dr. João', 'Dra. Maria', 'Dr. Pedro'];
+        $doctorNames = ['Dr. Joao', 'Dra. Maria', 'Dr. Pedro'];
 
         foreach ($doctorNames as $name) {
             User::create([
