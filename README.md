@@ -1,3 +1,6 @@
+# Contas para login
+- recepcionista@example.com -pw: password
+
 # Intruções de Instalação
 
 ## Features
